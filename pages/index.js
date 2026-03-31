@@ -13,7 +13,7 @@ import { ForecastDaily } from "../components/ForecastDaily";
 import styles from "../styles/Home.module.css";
 
 const REFRESH_INTERVAL = 60 * 60 * 1000;      // Rafraîchissement météo : 1h
-const CITY_ROTATION_INTERVAL = 5 * 1000;     // Rotation des villes : 30 secondes
+const CITY_ROTATION_INTERVAL = 5 * 1000;     // Rotation des villes : 5 secondes
 
 export const App = () => {
   const [weatherData, setWeatherData] = useState();
@@ -37,7 +37,7 @@ export const App = () => {
     return () => clearInterval(refreshInterval);
   }, []);
 
-  // Rotation automatique des villes toutes les 30 secondes
+  // Rotation automatique des villes toutes les 5 secondes
   useEffect(() => {
     const rotationInterval = setInterval(() => {
       setCityIndex(prev => {
