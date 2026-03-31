@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MainCard } from "../components/MainCard";
 import { ContentBox } from "../components/ContentBox";
 import { Header } from "../components/Header";
@@ -12,38 +12,47 @@ import { ForecastHourly } from "../components/ForecastHourly";
 import { ForecastDaily } from "../components/ForecastDaily";
 import styles from "../styles/Home.module.css";
 
-// Rafraîchissement des données toutes les heures (en millisecondes)
-const REFRESH_INTERVAL = 60 * 60 * 1000;
+const REFRESH_INTERVAL = 60 * 60 * 1000;      // Rafraîchissement météo : 1h
+const CITY_ROTATION_INTERVAL = 5 * 1000;     // Rotation des villes : 30 secondes
 
 export const App = () => {
   const [weatherData, setWeatherData] = useState();
   const [unitSystem, setUnitSystem] = useState("metric");
+  const [cityIndex, setCityIndex] = useState(0);
+  const totalCities = useRef(1);
 
-  const getData = async () => {
-    const res = await fetch("api/data");
+  const getData = async (index) => {
+    const res = await fetch(`api/data?index=${index}`);
     const data = await res.json();
+    if (data.totalCities) totalCities.current = data.totalCities;
     setWeatherData({ ...data });
   };
 
+  // Chargement initial + rafraîchissement horaire
   useEffect(() => {
-    // Chargement initial des données
-    getData();
-
-    // Rafraîchissement automatique toutes les heures
-    const interval = setInterval(() => {
-      getData();
+    getData(0);
+    const refreshInterval = setInterval(() => {
+      getData(cityIndex);
     }, REFRESH_INTERVAL);
+    return () => clearInterval(refreshInterval);
+  }, []);
 
-    // Nettoyage du timer quand le composant est démonté
-    return () => clearInterval(interval);
+  // Rotation automatique des villes toutes les 30 secondes
+  useEffect(() => {
+    const rotationInterval = setInterval(() => {
+      setCityIndex(prev => {
+        const next = (prev + 1) % totalCities.current;
+        getData(next);
+        return next;
+      });
+    }, CITY_ROTATION_INTERVAL);
+    return () => clearInterval(rotationInterval);
   }, []);
 
   const changeSystem = () =>
-    unitSystem === "metric"
-      ? setUnitSystem("imperial")
-      : setUnitSystem("metric");
+    unitSystem === "metric" ? setUnitSystem("imperial") : setUnitSystem("metric");
 
-return weatherData && !weatherData.message ? (
+  return weatherData && !weatherData.message ? (
     <div className={styles.wrapper}>
       <WeatherAlert alert={weatherData.alert} />
       <MainCard

@@ -1,15 +1,16 @@
-import cityConfig from "../../config/city.json";
+import cityConfigs from "../../config/city.json";
 
-// Codes WMO considérés comme critiques (alertes)
 const ALERT_CODES = [65, 75, 77, 82, 85, 86, 95, 96, 99];
 
 export default async function handler(req, res) {
-  const { city, country, timezone } = cityConfig;
-
   try {
-    // ÉTAPE 1 : Géocodage
+    const cities = Array.isArray(cityConfigs) ? cityConfigs : [cityConfigs];
+    const index = parseInt(req.query.index) || 0;
+    const cityConfig = cities[index % cities.length];
+
+    // Géocodage
     const geoRes = await fetch(
-      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=fr`
+      `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityConfig.city)}&count=1&language=fr`
     );
     const geoData = await geoRes.json();
 
@@ -19,7 +20,7 @@ export default async function handler(req, res) {
 
     const { latitude, longitude } = geoData.results[0];
 
-    // ÉTAPE 2 : Appel météo — current + hourly 24h + daily 7j
+    // Appel météo
     const weatherRes = await fetch(
       `https://api.open-meteo.com/v1/forecast` +
       `?latitude=${latitude}&longitude=${longitude}` +
@@ -28,7 +29,7 @@ export default async function handler(req, res) {
       `&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max` +
       `&forecast_days=7` +
       `&wind_speed_unit=ms` +
-      `&timezone=${encodeURIComponent(timezone)}`
+      `&timezone=${encodeURIComponent(cityConfig.timezone)}`
     );
     const weatherData = await weatherRes.json();
 
@@ -36,13 +37,11 @@ export default async function handler(req, res) {
     const daily = weatherData.daily;
     const hourly = weatherData.hourly;
 
-    // ÉTAPE 3 : Jour ou nuit
     const now = new Date(current.time);
     const sunrise = new Date(daily.sunrise[0]);
     const sunset = new Date(daily.sunset[0]);
     const isDay = now >= sunrise && now < sunset;
 
-    // ÉTAPE 4 : Prévisions horaires — prochaines 24h
     const currentHourIndex = hourly.time.findIndex(t => t >= current.time);
     const startIndex = currentHourIndex >= 0 ? currentHourIndex : 0;
     const hourlyForecast = hourly.time.slice(startIndex, startIndex + 24).map((time, i) => ({
@@ -54,7 +53,6 @@ export default async function handler(req, res) {
       description: wmoToDescription(hourly.weather_code[startIndex + i]),
     }));
 
-    // ÉTAPE 5 : Prévisions quotidiennes — 7 jours
     const dailyForecast = daily.time.map((date, i) => ({
       date,
       temp_max: daily.temperature_2m_max[i],
@@ -65,7 +63,6 @@ export default async function handler(req, res) {
       description: wmoToDescription(daily.weather_code[i]),
     }));
 
-    // ÉTAPE 6 : Alerte météo si code critique
     const alertCode = current.weather_code;
     const alert = ALERT_CODES.includes(alertCode)
       ? {
@@ -75,11 +72,10 @@ export default async function handler(req, res) {
         }
       : { active: false };
 
-    // ÉTAPE 7 : Réponse complète
-    const response = {
-      name: city,
+    res.status(200).json({
+      name: cityConfig.city,
       sys: {
-        country,
+        country: cityConfig.country,
         sunrise: Math.floor(sunrise.getTime() / 1000),
         sunset: Math.floor(sunset.getTime() / 1000),
       },
@@ -96,9 +92,9 @@ export default async function handler(req, res) {
       hourlyForecast,
       dailyForecast,
       alert,
-    };
+      totalCities: cities.length,
+    });
 
-    res.status(200).json(response);
   } catch (error) {
     console.error("Erreur lors de la récupération météo :", error);
     res.status(500).json({ message: "Erreur serveur. Veuillez réessayer." });

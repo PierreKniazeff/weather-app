@@ -1,7 +1,17 @@
-{
-  "city": "Osny",
-  "country": "France",
-  "timezone": "Europe/Paris"
-}
-
-
+[
+  {
+    "city": "Cergy",
+    "country": "France",
+    "timezone": "Europe/Paris"
+  },
+  {
+    "city": "Osny",
+    "country": "France",
+    "timezone": "Europe/Paris"
+  },
+  {
+    "city": "Pontoise",
+    "country": "France",
+    "timezone": "Europe/Paris"
+  }
+]
