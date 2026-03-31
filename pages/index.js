@@ -7,6 +7,9 @@ import { MetricsBox } from "../components/MetricsBox";
 import { UnitSwitch } from "../components/UnitSwitch";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { ErrorScreen } from "../components/ErrorScreen";
+import { WeatherAlert } from "../components/WeatherAlert";
+import { ForecastHourly } from "../components/ForecastHourly";
+import { ForecastDaily } from "../components/ForecastDaily";
 import styles from "../styles/Home.module.css";
 
 // Rafraîchissement des données toutes les heures (en millisecondes)
@@ -40,8 +43,9 @@ export const App = () => {
       ? setUnitSystem("imperial")
       : setUnitSystem("metric");
 
-  return weatherData && !weatherData.message ? (
+return weatherData && !weatherData.message ? (
     <div className={styles.wrapper}>
+      <WeatherAlert alert={weatherData.alert} />
       <MainCard
         city={weatherData.name}
         country={weatherData.sys.country}
@@ -57,6 +61,16 @@ export const App = () => {
         </Header>
         <MetricsBox weatherData={weatherData} unitSystem={unitSystem} />
       </ContentBox>
+      <div style={{ gridColumn: "1 / -1", padding: "0 30px 30px" }}>
+        <ForecastHourly
+          hourlyForecast={weatherData.hourlyForecast}
+          unitSystem={unitSystem}
+        />
+        <ForecastDaily
+          dailyForecast={weatherData.dailyForecast}
+          unitSystem={unitSystem}
+        />
+      </div>
     </div>
   ) : weatherData && weatherData.message ? (
     <ErrorScreen errorMessage={weatherData.message} />

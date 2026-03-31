@@ -1,7 +1,10 @@
+/* ─── BASE : Grands écrans embarqués (> 1024px) ─── */
 .wrapper {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  max-width: 1200px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 8px 32px 0 rgba(83, 89, 179, 0.37);
   backdrop-filter: blur(3px);
@@ -10,17 +13,33 @@
   overflow: hidden;
 }
 
-@media only screen and (max-width: 950px) {
+/* ─── Écrans embarqués moyens / tablettes paysage (800px–1024px) ─── */
+@media only screen and (max-width: 1024px) {
   .wrapper {
-    grid-template-columns: 1fr;
-    max-width: 600px;
-    margin: 20px auto;
+    grid-template-columns: 1fr 2fr;
+    max-width: 100%;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
 
+/* ─── Tablettes portrait / petits laptops (601px–800px) ─── */
+@media only screen and (max-width: 800px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+    max-width: 680px;
+    margin: 16px auto;
+    border-radius: 20px;
+  }
+}
+
+/* ─── Mobile (≤ 600px) — app ligne de bus ─── */
 @media only screen and (max-width: 600px) {
   .wrapper {
+    grid-template-columns: 1fr;
+    max-width: 100%;
     margin: 0;
     border-radius: 0;
+    box-shadow: none;
   }
 }

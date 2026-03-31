@@ -1,0 +1,75 @@
+.container {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 12px;
+  box-sizing: border-box;
+}
+
+.title {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.6;
+  margin-bottom: 10px;
+  margin-left: 4px;
+}
+
+.scroll {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+@media (max-width: 900px) {
+  .scroll {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .scroll {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.hourCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.current {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid rgba(0, 120, 255, 0.3);
+}
+
+.time {
+  font-weight: 700;
+  font-size: 0.68rem;
+  text-align: center;
+  color: #333;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+}
+
+.temp {
+  font-weight: 700;
+  color: #222;
+  font-size: 0.78rem;
+}
+
+.precip {
+  font-size: 0.65rem;
+  opacity: 0.75;
+}
